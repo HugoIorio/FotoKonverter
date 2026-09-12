@@ -1,0 +1,26 @@
+# Python / Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Compilação e Empacotamento (PyInstaller, Nuitka, Inno Setup)
+build/
+dist/
+Output/
+*.spec
+*.exe
+*.AppImage
+*.deb
+
+# Ambientes Virtuais
+.venv/
+venv/
+env/
+
+# Configurações de IDEs e editores
+.vscode/
+.idea/
+
+# Arquivos do Sistema Operacional
+.DS_Store
+Thumbs.db
