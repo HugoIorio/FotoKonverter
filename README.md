@@ -10,6 +10,7 @@ Fiz este projeto como forma de ter contato com a linguagem Python e criação de
 * **Processamento Batch**: Permite converter várias imagens rapidamente de forma automática;
 * **Redimensionamento**: Permite redimensionar imagens, mantendo sua proporção original;
 * **Compressão**: Permite reduzir o tamanho de arquivos de imagem;
-* **Conversão**: Permite converter para os formatos .jpeg, .webp ou .avif.
+* **Conversão**: Permite converter para os formatos .jpeg, .webp ou .avif;
+* **Privacidade**: Tudo acontece no seu computador, sem conexões com servidores de terceiros ou coleta de dados.
 
 ---
