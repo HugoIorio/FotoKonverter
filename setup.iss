@@ -14,6 +14,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "dist\FotoKonverter\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "FotoKonverter.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\FotoKonverter"; Filename: "{app}\FotoKonverter.exe"; IconFilename: "{app}\FotoKonverter.ico"
