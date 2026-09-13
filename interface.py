@@ -92,6 +92,11 @@ class Aplicativo(ctk.CTk):
         self.title("FotoKonverter")
         self.geometry("900x600")
 
+        try:
+            self.iconbitmap("FotoKonverter.ico")
+        except Exception:
+            pass
+
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
