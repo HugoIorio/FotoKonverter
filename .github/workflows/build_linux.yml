@@ -1,0 +1,84 @@
+name: Compilar FotoKonverter para Linux
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Baixar Código Fonte
+      uses: actions/checkout@v4
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instalar Dependências do Sistema
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-tk appstream
+
+    - name: Instalar Dependências do Python
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Converter ícone ICO para PNG (para uso no Linux)
+      run: |
+        python -c "from PIL import Image; Image.open('FotoKonverter.ico').save('FotoKonverter.png')"
+
+    - name: Compilar com PyInstaller
+      run: |
+        pyinstaller --noconfirm --onedir --windowed --icon="FotoKonverter.png" --name="FotoKonverter" interface.py
+
+    - name: Gerar AppImage via appimagetool
+      run: |
+        # Prepara a estrutura AppDir para o AppImage
+        mkdir -p AppDir/usr/bin
+        mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+        mkdir -p AppDir/usr/share/applications
+
+        # Copia o binário e arquivos do PyInstaller
+        cp -r dist/FotoKonverter/* AppDir/usr/bin/
+        cp FotoKonverter.png AppDir/usr/share/icons/hicolor/256x256/apps/FotoKonverter.png
+        cp FotoKonverter.png AppDir/FotoKonverter.png
+
+        # Cria o arquivo .desktop
+        cat <<EOF > AppDir/FotoKonverter.desktop
+        [Desktop Entry]
+        Type=Application
+        Name=FotoKonverter
+        Exec=FotoKonverter
+        Icon=FotoKonverter
+        Categories=Graphics;Utility;
+        Terminal=false
+        EOF
+
+        # Copia o AppRun básico
+        cat <<EOF > AppDir/AppRun
+        #!/bin/sh
+        HERE="\$(dirname "\$(readlink -f "\$0")")"
+        exec "\$HERE/usr/bin/FotoKonverter" "\$@"
+        EOF
+        chmod +x AppDir/AppRun
+
+        # Baixa o appimagetool e compila o AppImage
+        wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
+        chmod +x appimagetool-x86_64.AppImage
+        ./appimagetool-x86_64.AppImage AppDir FotoKonverter-x86_64.AppImage
+
+    - name: Anexar Arquivos na Release do GitHub
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          FotoKonverter-x86_64.AppImage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
