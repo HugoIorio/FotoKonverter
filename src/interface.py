@@ -88,7 +88,7 @@ class Aplicativo(ctk.CTk):
 
         ######### TELA PRINCIPAL (FUNDO) #########
 
-        self.title("assets/FotoKonverter")
+        self.title("assets\FotoKonverter")
         self.geometry("900x600")
 
         try:
