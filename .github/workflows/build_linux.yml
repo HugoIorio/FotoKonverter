@@ -59,7 +59,7 @@ jobs:
         Terminal=false
         EOF
 
-        # Copia o AppRun básico
+        # Cria o script AppRun
         cat <<EOF > AppDir/AppRun
         #!/bin/sh
         HERE="\$(dirname "\$(readlink -f "\$0")")"
@@ -67,8 +67,8 @@ jobs:
         EOF
         chmod +x AppDir/AppRun
 
-        # Baixa o appimagetool e compila o AppImage
-        wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
+        # Baixa a versão atualizada do appimagetool
+        wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool-x86_64.AppImage
         chmod +x appimagetool-x86_64.AppImage
         ./appimagetool-x86_64.AppImage AppDir FotoKonverter-x86_64.AppImage
 
