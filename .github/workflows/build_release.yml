@@ -60,8 +60,7 @@ jobs:
               pip install -r requirements.txt
               pip install pyinstaller
               pyinstaller --noconfirm --onedir --windowed --icon="assets/FotoKonverter.ico" --name="FotoKonverter" src/interface.py
-              choco install innosetup
-              & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" build/setup.iss
+              "C:/Program Files (x86)/Inno Setup 6/ISCC.exe" build/setup.iss
 
     steps:
     - name: Baixar Código Fonte
