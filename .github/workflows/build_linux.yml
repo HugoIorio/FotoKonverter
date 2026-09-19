@@ -31,13 +31,9 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
-    - name: Converter ícone ICO para PNG (para uso no Linux)
-      run: |
-        python -c "from PIL import Image; Image.open('FotoKonverter.ico').save('FotoKonverter.png')"
-
     - name: Compilar com PyInstaller
       run: |
-        pyinstaller --noconfirm --onedir --windowed --icon="FotoKonverter.png" --name="FotoKonverter" interface.py
+        pyinstaller --noconfirm --onedir --windowed --icon="assets/FotoKonverter.png" --name="FotoKonverter" src/interface.py
 
     - name: Gerar AppImage via appimagetool
       run: |
@@ -48,8 +44,8 @@ jobs:
 
         # Copia o binário e arquivos do PyInstaller
         cp -r dist/FotoKonverter/* AppDir/usr/bin/
-        cp FotoKonverter.png AppDir/usr/share/icons/hicolor/256x256/apps/FotoKonverter.png
-        cp FotoKonverter.png AppDir/FotoKonverter.png
+        cp assets/FotoKonverter.png AppDir/usr/share/icons/hicolor/256x256/apps/FotoKonverter.png
+        cp assets/FotoKonverter.png AppDir/FotoKonverter.png
 
         # Cria o arquivo .desktop
         cat <<EOF > AppDir/FotoKonverter.desktop
@@ -74,11 +70,3 @@ jobs:
         wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
         chmod +x appimagetool-x86_64.AppImage
         ./appimagetool-x86_64.AppImage AppDir FotoKonverter-x86_64.AppImage
-
-    - name: Anexar Arquivos na Release do GitHub
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          FotoKonverter-x86_64.AppImage
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
