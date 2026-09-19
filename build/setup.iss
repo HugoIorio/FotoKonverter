@@ -7,14 +7,14 @@ UninstallDisplayIcon={app}\FotoKonverter.exe
 Compression=lzma2
 SolidCompression=yes
 OutputBaseFilename=FotoKonverter_Setup_v1.0.0
-SetupIconFile=FotoKonverter.ico
+SetupIconFile=..\assets\FotoKonverter.ico
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "dist\FotoKonverter\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "FotoKonverter.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\dist\FotoKonverter\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\assets\FotoKonverter.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\FotoKonverter"; Filename: "{app}\FotoKonverter.exe"; IconFilename: "{app}\FotoKonverter.ico"
