@@ -39,6 +39,7 @@ jobs:
     - name: Anexar Instalador na Release do GitHub
       uses: softprops/action-gh-release@v2
       with:
+        tag_name: ${{ github.ref_name }}
         files: Output/FotoKonverter_Setup_v1.0.0.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
