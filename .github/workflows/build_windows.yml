@@ -29,7 +29,7 @@ jobs:
 
     - name: Compilar Código em Executável com PyInstaller
       run: |
-        pyinstaller --noconfirm --onedir --windowed --icon="assets/FotoKonverter.ico" --name="FotoKonverter" src/interface.py
+        pyinstaller --noconfirm --onedir --windowed --icon="assets\FotoKonverter.ico" --name="FotoKonverter" src/interface.py
 
     - name: Instalar Inno Setup e Compilar o Instalador
       run: |
