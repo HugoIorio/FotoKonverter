@@ -14,3 +14,6 @@ Fiz este projeto como forma de ter contato com a linguagem Python e criação de
 * **Privacidade**: Tudo acontece no seu computador, sem conexões com servidores de terceiros ou coleta de dados.
 
 ---
+
+## 🛠️ Estado
+Este projeto ainda está em **desenvolvimento**, mas logo terá um lançamento oficial.
