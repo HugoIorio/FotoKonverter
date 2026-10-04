@@ -15,5 +15,5 @@ Fiz este projeto como forma de ter contato com a linguagem Python e criação de
 
 ---
 
-## 🛠️ Estado
-Este projeto ainda está em **desenvolvimento**, mas logo terá um lançamento oficial.
+## 🛠️ Desenvolvimento
+Este projeto ainda está em **desenvolvimento**, mas logo haverá um lançamento oficial.
