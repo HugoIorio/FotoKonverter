@@ -21,6 +21,12 @@ class Aplicativo(ctk.CTk):
     def atualizar_label_qualidade(self, valor):
         self.txt_qualidade.configure(text=f"Qualidade ({int(valor)}%)")
 
+    def atualizar_label_threshold(self, valor):
+        if self.slide_threshold.get() > 1024:
+            self.txt_threshold.configure(text=f"Ignorar compressão abaixo de {valor/1024:.2f} MB")
+        else:
+            self.txt_threshold.configure(text=f"Ignorar compressão abaixo de {int(valor)} KB")
+
     def executar_compressao(self):
         entrada = self.dir_entrada.get()
         saida = self.dir_saida.get()
@@ -28,7 +34,7 @@ class Aplicativo(ctk.CTk):
         if entrada == "Não Selecionado" or saida == "Não Selecionado": # verificar se diretórios de entrada/saída foram selecionados
             messagebox.showerror(
                 "Diretórios Não Selecionados",
-                "Você deve selecionar um diretório de entrada e de saída para comprimir as imagens."
+                "Você deve selecionar um diretório de entrada e de saída para converter as imagens."
             )
             return
 
@@ -53,34 +59,36 @@ class Aplicativo(ctk.CTk):
             quer_redimensionar = False
             limite_maior_lado = 2147483647 # maior valor que um int 32 bits armazena
 
-        converter_outros = self.chk_converter_img.get() == "on"
         copiar_outros = self.chk_copiar_arq.get() == "on"
         salvar_exif = self.chk_preservar_meta.get() == "on"
         qualidade = int(self.slide_qualidade.get())
+        limite_tamanho = self.slide_threshold.get()
 
-        # Função interna que será rodada em background
-        def tarefa_compressao():
-            # Desativa o botão temporariamente para evitar cliques duplos
-            self.botao_comprimir.configure(state="disabled")
+        def tarefa_conversao():
+            # desligar o botão quando começar
+            self.botao_converter.configure(state="disabled")
 
             compressor.comprimir(
                 entrada,
                 saida,
-                quer_redimensionar,
-                limite_maior_lado,
-                converter_outros,
-                salvar_exif,
-                copiar_outros,
-                qualidade,
-                self.txtbox_status,
-                self.cmb_formato_alvo.get()
+                quer_redimensionar=quer_redimensionar,
+                limite_maior_lado=limite_maior_lado,
+                salvar_exif=salvar_exif,
+                copiar_outros=copiar_outros,
+                qualidade=qualidade,
+                limite_tamanho=limite_tamanho,
+                status_compressao=self.txtbox_status,
+                formato_alvo=self.cmb_formato_alvo.get()
             )
+            # reativa o botão quando a conversão terminar
+            self.botao_converter.configure(state="normal")
+            self.txtbox_status.configure(state="normal")
+            self.txtbox_status.insert("end","\nConversão Finalizada!")  # exibe na interface a mensagem ao usuário
+            self.txtbox_status.see("end")  # rolar textbox para baixo
+            self.txtbox_status.configure(state="disabled")
+            self.txtbox_status.update_idletasks()
 
-            # Reativa o botão quando a compressão terminar
-            self.botao_comprimir.configure(state="normal")
-
-        # Cria e inicia a Thread
-        thread = threading.Thread(target=tarefa_compressao, daemon=True)
+        thread = threading.Thread(target=tarefa_conversao, daemon=True)
         thread.start()
 
     def __init__(self):
@@ -89,10 +97,10 @@ class Aplicativo(ctk.CTk):
         ######### TELA PRINCIPAL (FUNDO) #########
 
         self.title("FotoKonverter")
-        self.geometry("900x600")
+        self.geometry("900x625")
 
         try:
-            self.iconbitmap("assets\FotoKonverter.ico")
+            self.iconbitmap("FotoKonverter.ico")
         except Exception:
             pass
 
@@ -174,7 +182,7 @@ class Aplicativo(ctk.CTk):
 
         self.titulo_painel_config = ctk.CTkLabel(
             self.painel_config,
-            text="Configurações de Compressão",
+            text="Configurações de Conversão",
             font=("Arial", 20)
         )
         self.titulo_painel_config.grid(
@@ -203,8 +211,8 @@ class Aplicativo(ctk.CTk):
             self.painel_config,
             fg_color="#111111",
             progress_color="#2270E6",
-            text=""
-
+            text="",
+            #command=
         )
         self.sw_redimensionar.grid(
             row=1,
@@ -213,6 +221,7 @@ class Aplicativo(ctk.CTk):
             pady=(10, 5),
             sticky="e"
         )
+        self.sw_redimensionar.select()
 
         self.txt_maior_lado = ctk.CTkLabel(
             self.painel_config,
@@ -305,40 +314,46 @@ class Aplicativo(ctk.CTk):
             column=0,
             columnspan=3,
             padx=(20, 20),
-            pady=(0, 15),
+            pady=(0, 3),
             sticky="we"
         )
         self.slide_qualidade.set(85)
         self.atualizar_label_qualidade(85)
 
-        self.chk_converter_img = ctk.CTkCheckBox(
-            master=self.painel_config,
-            fg_color="#2270E6",
-            hover_color="#1A488D",
-            text=" Converter imagens em outros formatos (png, webp, avif...) para jpeg.",
-            checkbox_width=18,
-            checkbox_height=18,
-            corner_radius=5,
-            border_width=2,
-            font=("Arial", 13),
-            onvalue="on",
-            offvalue="off"
+        self.txt_threshold = ctk.CTkLabel(
+            self.painel_config,
+            text="Ignorar compressão abaixo de 0 KB",
+            font=("Arial", 16)
         )
-        self.chk_converter_img.grid(
+        self.txt_threshold.grid(
             row=6,
             column=0,
-            columnspan=2,
+            columnspan=3,
             padx=(20, 0),
-            pady=(0, 10),
+            pady=(10, 5),
             sticky="w"
         )
-        self.chk_converter_img.select()
+
+        self.slide_threshold = ctk.CTkSlider(
+            master=self.painel_config,
+            height=18,
+            from_=0,
+            to=8192,
+            button_color="#FFFFFF",
+            fg_color="#111111",
+            button_hover_color="#AAAAAA",
+            progress_color="#2270E6",
+            number_of_steps=512,
+            command=self.atualizar_label_threshold
+        )
+        self.slide_threshold.grid(row=7, column=0, columnspan=3, padx=(20, 20), pady=(0, 10), sticky="we")
+        self.slide_threshold.set(0)
 
         self.chk_copiar_arq = ctk.CTkCheckBox(
             master=self.painel_config,
             fg_color="#2270E6",
             hover_color="#1A488D",
-            text=" Copiar arquivos ou imagens não comprimidas para diretório de saída.",
+            text=" Copiar arquivos não convertidos para diretório de saída.",
             checkbox_width=18,
             checkbox_height=18,
             corner_radius=5,
@@ -348,11 +363,11 @@ class Aplicativo(ctk.CTk):
             offvalue="off"
         )
         self.chk_copiar_arq.grid(
-            row=7,
+            row=8,
             column=0,
             columnspan=2,
             padx=(20, 0),
-            pady=(0, 10),
+            pady=(5, 10),
             sticky="w"
         )
         self.chk_copiar_arq.select()
@@ -361,7 +376,7 @@ class Aplicativo(ctk.CTk):
             master=self.painel_config,
             fg_color="#2270E6",
             hover_color="#1A488D",
-            text=" Preservar metadados (exif) nas imagens comprimidas.",
+            text=" Preservar metadados (exif) nas imagens convertidas.",
             checkbox_width=18,
             checkbox_height=18,
             corner_radius=5,
@@ -371,7 +386,7 @@ class Aplicativo(ctk.CTk):
             offvalue="off"
         )
         self.chk_preservar_meta.grid(
-            row=8,
+            row=9,
             column=0,
             padx=(20, 0),
             columnspan=2,
@@ -389,7 +404,7 @@ class Aplicativo(ctk.CTk):
 
         self.titulo_painel_status = ctk.CTkLabel(
             self.painel_status,
-            text="Status de Compressão",
+            text="Status de Conversão",
             font=("Arial", 20)
         )
         self.titulo_painel_status.grid(
@@ -402,9 +417,9 @@ class Aplicativo(ctk.CTk):
             master=self.painel_status,
             state="disabled",
             fg_color="#111111",
-            height=290,
+            height=320,
             scrollbar_button_color="#FFFFFF",
-            #border_width=1
+
         )
         self.txtbox_status.grid(
             row=1,
@@ -518,9 +533,9 @@ class Aplicativo(ctk.CTk):
         )
 
 
-        self.botao_comprimir = ctk.CTkButton(
+        self.botao_converter = ctk.CTkButton(
             self.painel_inferior,
-            text="Comprimir",
+            text="Converter",
             font = ("Arial", 18, "bold"),
             border_spacing=16,
             corner_radius=5,
@@ -528,21 +543,17 @@ class Aplicativo(ctk.CTk):
             hover_color="#005B3F",
             command=self.executar_compressao
         )
-        self.botao_comprimir.grid(
+        self.botao_converter.grid(
             row=1,
             rowspan=2,
             column=2,
             padx=(10, 40),
             sticky="e"
         )
-        self.tooltip_comprimir = CTkToolTip(
-            self.botao_comprimir,
-            message="Iniciar compressão das imagens."
+        self.tooltip_converter = CTkToolTip(
+            self.botao_converter,
+            message="Iniciar conversão das imagens."
         )
 
     def construir_tela(self):
         pass
-
-
-janela = Aplicativo()
-janela.mainloop()
