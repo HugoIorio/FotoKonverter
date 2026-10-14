@@ -20,7 +20,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=..\output
 OutputBaseFilename=FotoKonverter_Setup_v1.0.1
-SetupIconFile=..\assets\icone.ico
+SetupIconFile=..\assets\FotoKonverter.ico
 SolidCompression=yes
 WizardStyle=modern dark
 
