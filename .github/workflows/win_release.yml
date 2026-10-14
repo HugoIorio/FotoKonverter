@@ -27,11 +27,11 @@ jobs:
 
       - name: Compilar com PyInstaller
         run: |
-          pyinstaller --onedir --noconsole --name FotoKonverter --icon=assets/icone.ico src/main.py
+          pyinstaller --onedir --noconsole --name FotoKonverter --icon=assets/FotoKonverter.ico src/main.py
 
       - name: Copiar ícone para a pasta dist
         run: |
-          Copy-Item "assets/icone.ico" "dist/FotoKonverter/"
+          Copy-Item "assets/FotoKonverter.ico" "dist/FotoKonverter/"
 
       - name: Instalar Inno Setup
         uses: msys2/setup-msys2@v2
