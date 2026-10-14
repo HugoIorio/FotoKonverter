@@ -17,9 +17,11 @@ Fiz este projeto como forma de ter contato com a linguagem Python e criação de
 
 ## 📥 Instalação
 ### Windows
-A versão de Windows pode ser [baixada por aqui](https://github.com/HugoIorio/FotoKonverter/releases/download/v1.0.0/FotoKonverter_WinSetup_v1.0.0.exe).
+A versão mais recente de Windows pode ser [baixada por aqui](https://github.com/HugoIorio/FotoKonverter/releases/download/v1.0.1/FotoKonverter_Setup_v1.0.1.exe).
 
 Uma vez que o arquivo de setup tenha sido baixado, basta executá-lo para instalar o FotoKonverter.
+
+Alternativamente, caso queira usar uma versão mais antiga do FotoKonverter, as [versões disponíveis podem ser vistas aqui](https://github.com/HugoIorio/FotoKonverter/releases)
 
 ### Linux
 Ainda não há uma versão para Linux, embora possa ser possível executar a versão de Windows através do Wine. 
