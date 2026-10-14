@@ -1,10 +1,21 @@
 from PIL import Image
 
-#def converter_formato(formato_alvo, nome_base) - desenvolver isso quando possível
-
 def avoid_overwrite(name_file, counter, img_format):
     new_name = name_file + "_" + str(counter) + img_format
     return new_name
+
+
+def estatisticas_finais(status_processamento, erros, sucessos, copiados, tam_inicial, tam_final):
+    status_processamento.configure(state="normal")
+    status_processamento.insert("end", "\nConversão Finalizada!\n\n")
+    if sucessos > 0:
+        status_processamento.insert("end", f"Arquivos Convertidos: {sucessos}\n")
+    if erros > 0:
+        status_processamento.insert("end", f"Arquivos Corrompidos: {erros}\n")
+    if copiados > 0:
+        status_processamento.insert("end", f"Arquivos Copiados: {copiados}\n")
+    status_processamento.see("end")
+    status_processamento.configure(state="disabled")
 
 
 def exibir_prompt(status_processamento, nome_arquivo, tipo_processamento):

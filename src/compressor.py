@@ -1,11 +1,10 @@
 import os
-from PIL import Image #ImageFile
+from PIL import Image
 import shutil
 import compressor_utils as cutils
 
-formatos_imagens = ('.png', '.webp', '.bmp', '.avif', '.jpg', '.jpeg')
+formatos_imagens = ('.png', '.webp', '.bmp', '.avif', '.jpg', '.jpeg', '.tif', '.tiff')
 
-#ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def comprimir(dir_entrada, dir_saida, **kwargs):
     quer_redimensionar = kwargs.get("quer_redimensionar", False)
@@ -17,66 +16,86 @@ def comprimir(dir_entrada, dir_saida, **kwargs):
     formato_alvo = kwargs.get("formato_alvo", ".jpeg")
     limite_tamanho = kwargs.get("limite_tamanho", 0) * 1024
 
-    for arquivo_imagem in os.listdir(dir_entrada):
-        nome_base, extensao = os.path.splitext(arquivo_imagem)
-        caminho_entrada = os.path.join(dir_entrada, arquivo_imagem)
+    sucessos = 0
+    fracassos = 0
+    copiados = 0
+    tam_original = 0
+    tam_final = 0
 
-        if arquivo_imagem.lower().endswith(formatos_imagens):
-            try:
-                imagem = Image.open(caminho_entrada)
-                imagem.load()
+    for raiz, diretorios, arquivos in os.walk(dir_entrada):
+        rel_path = os.path.relpath(raiz, dir_entrada)
+        dir_saida_atual = os.path.join(dir_saida, rel_path)
+        os.makedirs(dir_saida_atual, exist_ok=True)
 
-                if extensao == ".jpg":
-                    extensao = ".jpeg"
+        for arquivo_imagem in arquivos:
+            nome_base, extensao = os.path.splitext(arquivo_imagem)
+            caminho_entrada = os.path.join(raiz, arquivo_imagem)
 
-                tamanho_arquivo_origem = os.path.getsize(caminho_entrada)
+            if arquivo_imagem.lower().endswith(formatos_imagens):
+                try:
+                    imagem = Image.open(caminho_entrada)
+                    imagem.load()
 
-                deve_comprimir = tamanho_arquivo_origem >= limite_tamanho
+                    if extensao in ('.JPG', '.jpg', '.JPEG'):
+                        extensao = ".jpeg"
 
-                if formato_alvo.lower() in ('.jpeg', '.jpg'):
-                    imagem = cutils.tratar_transparencia(imagem)
+                    tamanho_arquivo_origem = os.path.getsize(caminho_entrada)
 
-                caminho_saida = os.path.join(dir_saida, nome_base + formato_alvo)
-                contador = 0
-                while os.path.exists(caminho_saida):
-                    caminho_saida = os.path.join(dir_saida, cutils.avoid_overwrite(nome_base, contador, formato_alvo))
-                    contador += 1
+                    tam_original += tamanho_arquivo_origem
 
-                largura, altura = imagem.size
-                maior_lado = max(largura, altura)
-                if deve_comprimir and quer_redimensionar and maior_lado > limite_maior_lado:
-                    imagem = cutils.redimensionar(imagem, limite_maior_lado, maior_lado, largura, altura)
+                    deve_comprimir = tamanho_arquivo_origem >= limite_tamanho
 
-                formato_salvar = formato_alvo.removeprefix(".").upper()
+                    if formato_alvo.lower() in ('.jpeg', '.jpg'):
+                        imagem = cutils.tratar_transparencia(imagem)
 
-                qualidade_final = qualidade if deve_comprimir else 100
+                    # Salva no diretório de saída atual correspondente à subpasta
+                    caminho_saida = os.path.join(dir_saida_atual, nome_base + formato_alvo)
+                    contador = 0
+                    while os.path.exists(caminho_saida):
+                        caminho_saida = os.path.join(dir_saida_atual, cutils.avoid_overwrite(nome_base, contador, formato_alvo))
+                        contador += 1
 
-                save_kwargs = {
-                    "format": formato_salvar,
-                    "quality": qualidade_final,
-                    "optimize": True
-                }
+                    largura, altura = imagem.size
+                    maior_lado = max(largura, altura)
+                    if deve_comprimir and quer_redimensionar and maior_lado > limite_maior_lado:
+                        imagem = cutils.redimensionar(imagem, limite_maior_lado, maior_lado, largura, altura)
 
-                if salvar_exif:
-                    try:
-                        exif = imagem.getexif()
-                        if exif:
-                            save_kwargs["exif"] = exif
-                    except Exception:
-                        pass
+                    formato_salvar = formato_alvo.removeprefix(".").upper()
 
-                imagem.save(caminho_saida, **save_kwargs)
-                cutils.exibir_prompt(status_compressao, arquivo_imagem, "OTIMIZADA" if deve_comprimir else "CONVERTIDA")
+                    qualidade_final = qualidade if deve_comprimir else 100
 
-            except Exception as e:
-                cutils.exibir_prompt(status_compressao, arquivo_imagem, f"ERRO (ARQUIVO CORROMPIDO: {e})")
-                continue
+                    save_kwargs = {
+                        "format": formato_salvar,
+                        "optimize": True
+                    }
 
-        elif copiar_outros:
-            caminho_saida = os.path.join(dir_saida, arquivo_imagem)
-            contador = 0
-            while os.path.exists(caminho_saida):
-                caminho_saida = os.path.join(dir_saida, cutils.avoid_overwrite(nome_base, contador, extensao))
-                contador += 1
-            shutil.copyfile(caminho_entrada, caminho_saida)
-            cutils.exibir_prompt(status_compressao, arquivo_imagem, "COPIADA")
+                    if formato_alvo == ".png":
+                        save_kwargs["compression"] = 9
+                    else:
+                        save_kwargs["quality"] = qualidade_final
+
+                    if salvar_exif:
+                        try:
+                            exif = imagem.getexif()
+                            if exif:
+                                save_kwargs["exif"] = exif
+                        except Exception:
+                            pass
+
+                    imagem.save(caminho_saida, **save_kwargs)
+                    cutils.exibir_prompt(status_compressao, arquivo_imagem, "CONVERTIDA")
+                    tam_final += os.path.getsize(caminho_saida)
+                    sucessos += 1
+
+                except Exception as e:
+                    cutils.exibir_prompt(status_compressao, arquivo_imagem, f"ERRO (ARQUIVO CORROMPIDO: {e})")
+                    fracassos += 1
+                    continue
+
+            elif copiar_outros:
+                caminho_saida = os.path.join(dir_saida_atual, arquivo_imagem)
+                shutil.copyfile(caminho_entrada, caminho_saida)
+                cutils.exibir_prompt(status_compressao, arquivo_imagem, "COPIADA")
+                copiados += 1
+
+    cutils.estatisticas_finais(status_compressao, fracassos, sucessos, copiados, tam_original, tam_final)

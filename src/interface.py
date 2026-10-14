@@ -83,7 +83,6 @@ class Aplicativo(ctk.CTk):
             # reativa o botão quando a conversão terminar
             self.botao_converter.configure(state="normal")
             self.txtbox_status.configure(state="normal")
-            self.txtbox_status.insert("end","\nConversão Finalizada!")  # exibe na interface a mensagem ao usuário
             self.txtbox_status.see("end")  # rolar textbox para baixo
             self.txtbox_status.configure(state="disabled")
             self.txtbox_status.update_idletasks()
@@ -275,7 +274,7 @@ class Aplicativo(ctk.CTk):
             dropdown_fg_color="#111111",
             border_width=1,
             border_color="#383838",
-            values=[".jpeg", ".webp", ".avif"]
+            values=[".jpeg", ".webp", ".avif", ".png"]
         )
         self.cmb_formato_alvo.grid(
             row=3,
