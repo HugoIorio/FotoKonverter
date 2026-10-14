@@ -38,11 +38,6 @@ jobs:
           choco install innosetup -y
         shell: pwsh
 
-      - name: Verificar Inno Setup
-        run: |
-          iscc /?
-        shell: cmd
-
       - name: Criar Instalador com Inno Setup
         run: |
           iscc build/setup.iss
