@@ -34,11 +34,14 @@ jobs:
           Copy-Item "assets/FotoKonverter.ico" "dist/FotoKonverter/"
 
       - name: Instalar Inno Setup
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: mingw-w64-ucrt-x86_64-innosetup
+        run: |
+          choco install innosetup -y
+        shell: pwsh
+
+      - name: Verificar Inno Setup
+        run: |
+          iscc /?
+        shell: cmd
 
       - name: Criar Instalador com Inno Setup
         run: |
